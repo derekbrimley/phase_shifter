@@ -129,7 +129,7 @@ function AudioPhase() {
 
       // Set different playback rates
       let bpm = 120;
-      newPlayers.forEach((player, i) => {
+      newPlayers.forEach((player) => {
         player.playbackRate = bpm / 120;
         bpm += bpmStep;
       });
@@ -315,7 +315,7 @@ export default function App(): JSX.Element {
           </div>
           <div className="grid-container">
             <div className="note-labels">
-              {NOTES.map((note, i) => (
+              {NOTES.map((note) => (
                 <div key={note} className="note-label">{note}</div>
               ))}
             </div>
