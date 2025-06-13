@@ -81,7 +81,6 @@ function AudioPhase() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const players = useRef<Tone.Player[]>([]);
-  const stopFn = useRef<(() => void) | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];

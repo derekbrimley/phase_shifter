@@ -8,6 +8,7 @@ export interface CanonOptions {
   startBpm?: number;    // default 120
   bpmStep?: number;     // default +0.5 BPM per new voice
   synthType?: string;   // default "synth"
+  noteDuration?: string; // default "16n"
   onNotePlay?: (note: string, position: number) => void;
   onNoteStop?: (note: string, position: number) => void;
 }
@@ -35,7 +36,7 @@ function createSynth(type: string) {
 }
 
 // Build a Tone.Part for one voice of the canon
-function buildPart(grid: Grid, bpm: number, synthType: string, onNotePlay?: (note: string, position: number) => void, onNoteStop?: (note: string, position: number) => void): Tone.Part {
+function buildPart(grid: Grid, bpm: number, synthType: string, noteDuration: string, onNotePlay?: (note: string, position: number) => void, onNoteStop?: (note: string, position: number) => void): Tone.Part {
   const events: Array<[number, string, number]> = [];
   const secondsPerBeat = 60 / bpm;
   const synth = createSynth(synthType);
@@ -48,12 +49,12 @@ function buildPart(grid: Grid, bpm: number, synthType: string, onNotePlay?: (not
 
   const part = new Tone.Part((time, value) => {
     const { note, position } = value as { note: string, position: number };
-    synth.triggerAttackRelease(note, "16n", time);
+    synth.triggerAttackRelease(note, noteDuration, time);
     onNotePlay?.(note, position);
     // Schedule the note stop event
     Tone.getContext().transport.scheduleOnce(() => {
       onNoteStop?.(note, position);
-    }, time + Tone.Time("16n").toSeconds());
+    }, time + Tone.Time(noteDuration).toSeconds());
   }, events.map(([time, note, position]) => [time, { note, position }]));
 
   // Set up independent timing
@@ -74,6 +75,7 @@ export function startCanon(
     startBpm = 120,
     bpmStep = 0.5,
     synthType = "synth",
+    noteDuration = "16n",
     onNotePlay,
     onNoteStop,
   }: CanonOptions = {},
@@ -86,7 +88,7 @@ export function startCanon(
 
   for (let i = 0; i < voices; i++) {
     console.log(`Voice ${i + 1} BPM: ${bpm}`);
-    const part = buildPart(grid, bpm, synthType, onNotePlay, onNoteStop);
+    const part = buildPart(grid, bpm, synthType, noteDuration, onNotePlay, onNoteStop);
     part.start(0);  // Start all parts at the same time
     parts.push(part);
     bpm += bpmStep;
